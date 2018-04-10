@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.DiskLruCache.Snapshot;
 import com.android.volley.toolbox.ImageLoader.ImageCache;
 
@@ -13,9 +14,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.os.Environment;
 import android.graphics.BitmapFactory;
-import android.util.Log;
+import android.os.Environment;
 import android.util.LruCache;
 
 public class VolleyImageCache implements ImageCache{
@@ -26,8 +26,8 @@ public class VolleyImageCache implements ImageCache{
 
 	// 磁盘缓存大小 10MB
 	private static final int DISKMAXSIZE = 10 * 1024 * 1024;
-
-	private final String TAG = VolleyImageCache.class.getSimpleName();
+	
+	private static final boolean DEBUG = VolleyLog.DEBUG;
 
 	private LruCache<String, Bitmap> mLruCache = null;
 
@@ -45,7 +45,9 @@ public class VolleyImageCache implements ImageCache{
 			mDiskLruCache = DiskLruCache.open(new File(getAbsDiskDir(context.getApplicationContext(), "volley_image_cache")),
 					getVersionCode(context)
 					, 1, DISKMAXSIZE);
-			Log.d(TAG, mDiskLruCache.getDirectory()+"$");
+			if (DEBUG) {
+				VolleyLog.v("Volley Image Cache from %s", mDiskLruCache.getDirectory()+"$");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -76,7 +78,9 @@ public class VolleyImageCache implements ImageCache{
 	public Bitmap getBitmap(String url) {
 		if (mLruCache.get(url) != null) {
             // 从LruCache缓存中取
-            Log.i(TAG,"从LruCahce获取");
+            if (DEBUG) {
+				VolleyLog.v("Volley Image Cache from %s", "LruCahce");
+			}
             return mLruCache.get(url);
         } else {
             String key =url.substring(url.lastIndexOf(File.separator));
@@ -89,7 +93,9 @@ public class VolleyImageCache implements ImageCache{
                         bitmap = BitmapFactory.decodeStream(snapshot.getInputStream(0));
                         // 存入LruCache缓存
                         mLruCache.put(url, bitmap);
-                        Log.i(TAG,"从DiskLruCahce获取");
+                        if (DEBUG) {
+            				VolleyLog.v("Volley Image Cache from %s", "DiskLruCahce");
+            			}
                     }
                     return bitmap;
                 }

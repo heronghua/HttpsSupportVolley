@@ -16,9 +16,10 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
-import android.util.Log;
+import com.android.volley.VolleyLog;
 
 public class SSLSocketFactoryExtended extends SSLSocketFactory {
+	private static final boolean DEBUG = VolleyLog.DEBUG;
 	private SSLContext mSSLContext;
 	private String[] mCiphers;
 	private String[] mProtocols;
@@ -137,7 +138,9 @@ public class SSLSocketFactoryExtended extends SSLSocketFactory {
 		for (String s : factory.getSupportedCipherSuites()) {
 			resultList.add(s);
 		}
-		Log.i("CipherSuite type = ", Arrays.asList(factory.getSupportedCipherSuites()).toString()+"$");
+		if (DEBUG) {
+			VolleyLog.v("CipherSuite type = %s", Arrays.asList(factory.getSupportedCipherSuites()).toString());
+		}
 		return resultList.toArray(new String[resultList.size()]);
 	}
 
